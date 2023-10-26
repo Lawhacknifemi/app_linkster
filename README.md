@@ -1,39 +1,48 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# app_linkster
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A versatile utility to facilitate launching deep links for popular social media platforms. With `app_linkster`, effortlessly convert standard web URLs to platform-specific deep links and launch them seamlessly on both iOS and Android.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- **Support for Multiple Platforms**: Currently supports Facebook, Twitter, Instagram, TikTok, YouTube, and LinkedIn.
+- **Automatic Platform Detection**: It intelligently detects the platform (iOS/Android) and launches the deep link accordingly.
+- **Easy Integration**: Designed to be a drop-in solution for projects with minimal setup.
+- **Custom Deep Link Parsing**: Uses `DeeplinkCreator` for flexible deep link generation based on given URL patterns.
 
-## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+## Getting Started
+
+### Prerequisites
+- Dart SDK: version >=3.0.5 <4.0.0
+- Flutter: version >=3.0.0
+
+### Installation
+1. Add `app_linkster` to your `pubspec.yaml` file:
+```yaml
+dependencies:
+  app_linkster: ^latest_version
+```
+2. Install the package:
+```bash
+$ flutter pub get
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
+1. Import the library:
 ```dart
-const like = 'sample';
+import 'package:app_linkster/app_linkster.dart';
 ```
 
-## Additional information
+2. Create an instance of `AppLinksterLauncher` and call `launchThisGuy`:
+```dart
+final launcher = AppLinksterLauncher();
+await launcher.launchThisGuy('https://www.facebook.com/yourProfile');
+```
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## Additional Information
+
+- **Documentation**: For detailed documentation, WIP.
+- **Contributions**: We welcome contributions!.
+- **Issues**: If you encounter any problems, please file an issue along with a detailed description.
+- **Feedback**: All feedback is welcome! Reach out to us at [mohn93@gmail.com].
