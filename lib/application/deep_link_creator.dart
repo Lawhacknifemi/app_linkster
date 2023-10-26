@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:app_linkster/model/app_type.dart';
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 
 class DeeplinkCreator {
-  const DeeplinkCreator();
+  const DeeplinkCreator(this.logger);
 
+  final Logger logger;
   Future<String> getDeepLink({
     required String url,
     required AppType type,
@@ -39,9 +41,9 @@ class DeeplinkCreator {
     try {
       final response = await dio.get(url, options: Options(headers: headers));
       if (response.statusCode == 200) return response.data.toString();
-      print('Failed to load profile: ${response.statusCode}');
+      logger.e('Failed to load profile: ${response.statusCode}');
     } catch (e) {
-      print('Request error: $e');
+      logger.e('Request error: $e');
     }
     return null;
   }

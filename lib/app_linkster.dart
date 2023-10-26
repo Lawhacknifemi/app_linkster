@@ -12,18 +12,20 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 class AppLinksterLauncher {
   AppLinksterLauncher({
-    this.deeplinkCreator = const DeeplinkCreator(),
+    DeeplinkCreator? deeplinkCreator,
     KeyValueStore? keyValueStore,
     Logger? logger,
   })  : logger = logger ?? Logger(),
-        keyValueStore = keyValueStore ?? KeyValueStore();
+        keyValueStore = keyValueStore ?? KeyValueStore() {
+    deeplinkCreator = deeplinkCreator ?? DeeplinkCreator(this.logger);
+  }
 
   //this is a singleton
   static final AppLinksterLauncher _singleton = AppLinksterLauncher();
 
   static AppLinksterLauncher get instance => _singleton;
 
-  final DeeplinkCreator deeplinkCreator;
+  late final DeeplinkCreator deeplinkCreator;
   final Logger logger;
   final KeyValueStore keyValueStore;
 
