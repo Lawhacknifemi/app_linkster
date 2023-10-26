@@ -1,12 +1,9 @@
 import 'dart:io';
-
 import 'package:app_linkster/model/app_type.dart';
 import 'package:dio/dio.dart';
 
 class DeeplinkCreator {
   const DeeplinkCreator();
-
- final  Map<AppType, String> entityIds = const {};
 
   Future<String> getDeepLink({
     required String url,
@@ -21,16 +18,9 @@ class DeeplinkCreator {
           : iosDeepLinkTemplate.replaceAll('{id}', id);
     }
 
-    final profileId = entityIds[type];
-    if (profileId == null) {
-      final newEntityId =
-          await _getSocialMediaId(url, idExtractionRegex);
-      if (newEntityId != null) {
-        entityIds[type] = newEntityId;
-        return filledUrl(newEntityId);
-      }
-    } else {
-      return filledUrl(profileId);
+    final newEntityId = await _getSocialMediaId(url, idExtractionRegex);
+    if (newEntityId != null) {
+      return filledUrl(newEntityId);
     }
     return '';
   }

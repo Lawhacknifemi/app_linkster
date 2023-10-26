@@ -5,6 +5,7 @@ export 'application/application.dart';
 import 'dart:io';
 
 import 'package:app_linkster/application/deep_link_creator.dart';
+import 'package:app_linkster/application/kv_store.dart';
 import 'package:app_linkster/model/app_type.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -12,11 +13,19 @@ import 'package:url_launcher/url_launcher_string.dart';
 class AppLinksterLauncher {
   AppLinksterLauncher({
     this.deeplinkCreator = const DeeplinkCreator(),
+    KeyValueStore? keyValueStore,
     Logger? logger,
-  }) : logger = logger ?? Logger();
+  })  : logger = logger ?? Logger(),
+        keyValueStore = keyValueStore ?? KeyValueStore();
+
+  //this is a singleton
+  static final AppLinksterLauncher _singleton = AppLinksterLauncher();
+
+  static AppLinksterLauncher get instance => _singleton;
 
   final DeeplinkCreator deeplinkCreator;
   final Logger logger;
+  final KeyValueStore keyValueStore;
 
   Future<void> launchThisGuy(String url) async {
     logger.i("Attempting to launch: $url");
@@ -49,25 +58,30 @@ class AppLinksterLauncher {
   }
 
   Future _launchFacebook(String url) async {
-    String parsedUrl = await deeplinkCreator.getDeepLink(
-        url: url.replaceFirst('www.', ''),
-        type: AppType.facebook,
-        idExtractionRegex:
-            r'<meta property="al:android:url" content="fb://profile/(\d+)"',
-        androidDeepLinkTemplate: 'fb://page/{id}',
-        iosDeepLinkTemplate: 'fb://profile/{id}');
+    String parsedUrl = keyValueStore.get(AppType.facebook.name) ??
+        await deeplinkCreator.getDeepLink(
+            url: url.replaceFirst('www.', ''),
+            type: AppType.facebook,
+            idExtractionRegex:
+                r'<meta property="al:android:url" content="fb://profile/(\d+)"',
+            androidDeepLinkTemplate: 'fb://page/{id}',
+            iosDeepLinkTemplate: 'fb://profile/{id}');
+    keyValueStore.put(AppType.facebook.name, parsedUrl);
 
     logger.d("Parsed Facebook URL: $parsedUrl");
     await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
   }
 
   Future _launchTikTok(String url) async {
-    String parsedUrl = await deeplinkCreator.getDeepLink(
-        url: url,
-        type: AppType.tiktok,
-        idExtractionRegex: r',"authorId":"(\d+)"',
-        androidDeepLinkTemplate: 'snssdk1233://user/profile/{id}',
-        iosDeepLinkTemplate: 'snssdk1233://user/profile/{id}');
+    String parsedUrl = keyValueStore.get(AppType.tiktok.name) ??
+        await deeplinkCreator.getDeepLink(
+            url: url,
+            type: AppType.tiktok,
+            idExtractionRegex: r',"authorId":"(\d+)"',
+            androidDeepLinkTemplate: 'snssdk1233://user/profile/{id}',
+            iosDeepLinkTemplate: 'snssdk1233://user/profile/{id}');
+
+    keyValueStore.put(AppType.tiktok.name, parsedUrl);
     logger.d("Parsed TikTok URL: $parsedUrl");
 
     await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
