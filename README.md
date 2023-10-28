@@ -9,6 +9,16 @@ A versatile utility to facilitate launching deep links for popular social media 
 - **Easy Integration**: Designed to be a drop-in solution for projects with minimal setup.
 - **Custom Deep Link Parsing**: Uses `DeeplinkCreator` for flexible deep link generation based on given URL patterns.
 
+## Supported Apps
+
+- Facebook
+- (X) Twitter
+- Instagram
+- TikTok
+- YouTube
+- LinkedIn
+- More coming soon!
+
 
 ## Getting Started
 
