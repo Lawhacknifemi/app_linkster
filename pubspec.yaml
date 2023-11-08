@@ -1,6 +1,6 @@
 name: app_linkster
 description: AppLinkster simplifies the process of opening specific apps using tailored deep links.
-version: 0.0.1
+version: 0.0.2
 homepage: https://beingthere.dev
 repository: https://github.com/mohn93/app_linkster
 
