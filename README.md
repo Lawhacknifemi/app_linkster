@@ -36,7 +36,8 @@ dependencies:
 ```bash
 $ flutter pub get
 ```
-3. iOS special setup: add the following to your info.plist file:
+3. Add query schemes:
+  - For iOS, add the following to your `Info.plist` file:
 ```xml
 <key>LSApplicationQueriesSchemes</key>
 <array>
@@ -48,6 +49,27 @@ $ flutter pub get
     <string>linkedin</string>
 </array>
 ```
+
+- For Android, add the following to your `AndroidManifest.xml` file:
+
+```xml
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="fb" />
+        </intent>
+ 
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="snssdk1233" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+```
+
 ## Usage
 
 1. Import the library:

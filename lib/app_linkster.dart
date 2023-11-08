@@ -66,7 +66,8 @@ class AppLinksterLauncher {
             idExtractionRegex:
                 r'<meta property="al:android:url" content="fb://profile/(\d+)"',
             androidDeepLinkTemplate: 'fb://page/{id}',
-            iosDeepLinkTemplate: 'fb://profile/{id}');
+            iosDeepLinkTemplate: 'fb://profile/{id}',
+        );
     keyValueStore.put(AppType.facebook.name, parsedUrl);
 
     logger.d("Parsed Facebook URL: $parsedUrl");
@@ -108,7 +109,7 @@ class AppLinksterLauncher {
 
   Future _launchYoutube(String url) async {
     String parsedUrl =
-        "youtube://${"${Uri.parse(url).path}?${Uri.parse(url).query}"}";
+        "youtube:/${"${Uri.parse(url).path}?${Uri.parse(url).query}"}";
     await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
   }
 
