@@ -17,7 +17,7 @@ class AppLinksterLauncher {
     Logger? logger,
   })  : logger = logger ?? Logger(),
         keyValueStore = keyValueStore ?? KeyValueStore() {
-    deeplinkCreator = deeplinkCreator ?? DeeplinkCreator(this.logger);
+    this.deeplinkCreator = deeplinkCreator ?? DeeplinkCreator(this.logger);
   }
 
   //this is a singleton
@@ -30,7 +30,6 @@ class AppLinksterLauncher {
   final KeyValueStore keyValueStore;
 
   Future<void> launchThisGuy(String url) async {
-    logger.i("Attempting to launch: $url");
 
     final type = _identifyAppType(url);
 
@@ -115,12 +114,15 @@ class AppLinksterLauncher {
 
   Future _determineOSAndLaunchUrl(
       {required String url, required String parsedUrl}) async {
-    String urlToLaunch = (await canLaunchUrlString(parsedUrl) || Platform.isIOS)
+    final canLaunch = await canLaunchUrlString(parsedUrl);
+    logger.d("Can launch: $canLaunch");
+
+    String urlToLaunch = canLaunch
         ? parsedUrl
         : url;
     logger.d("Determined URL: $urlToLaunch");
 
-    launchUrlString(urlToLaunch);
+    launchUrlString(urlToLaunch,mode: Platform.isAndroid ? LaunchMode.externalApplication: LaunchMode.platformDefault);
   }
 
   AppType _identifyAppType(String url) {
