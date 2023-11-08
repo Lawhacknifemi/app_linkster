@@ -36,7 +36,18 @@ dependencies:
 ```bash
 $ flutter pub get
 ```
-
+3. iOS special setup: add the following to your info.plist file:
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>fb</string>
+    <string>instagram</string>
+    <string>snssdk1233</string>
+    <string>twitter</string>
+    <string>youtube</string>
+    <string>linkedin</string>
+</array>
+```
 ## Usage
 
 1. Import the library:
