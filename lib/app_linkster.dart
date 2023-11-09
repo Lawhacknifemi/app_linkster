@@ -65,7 +65,7 @@ class AppLinksterLauncher {
             type: AppType.facebook,
             idExtractionRegex:
                 r'<meta property="al:android:url" content="fb://profile/(\d+)"',
-            androidDeepLinkTemplate: 'fb://page/{id}',
+            androidDeepLinkTemplate: 'fb://profile/{id}',
             iosDeepLinkTemplate: 'fb://profile/{id}',
         );
     keyValueStore.put(AppType.facebook.name, parsedUrl);
