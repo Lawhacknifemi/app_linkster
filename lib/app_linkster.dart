@@ -30,7 +30,6 @@ class AppLinksterLauncher {
   final KeyValueStore keyValueStore;
 
   Future<void> launchThisGuy(String url) async {
-
     final type = _identifyAppType(url);
 
     switch (type) {
@@ -61,12 +60,12 @@ class AppLinksterLauncher {
   Future _launchFacebook(String url) async {
     String parsedUrl = keyValueStore.get(AppType.facebook.name) ??
         await deeplinkCreator.getDeepLink(
-            url: url.replaceFirst('www.', ''),
-            type: AppType.facebook,
-            idExtractionRegex:
-                r'<meta property="al:android:url" content="fb://profile/(\d+)"',
-            androidDeepLinkTemplate: 'fb://profile/{id}',
-            iosDeepLinkTemplate: 'fb://profile/{id}',
+          url: url.replaceFirst('www.', ''),
+          type: AppType.facebook,
+          idExtractionRegex:
+              r'<meta property="al:android:url" content="fb://profile/(\d+)"',
+          androidDeepLinkTemplate: 'fb://profile/{id}',
+          iosDeepLinkTemplate: 'fb://profile/{id}',
         );
     keyValueStore.put(AppType.facebook.name, parsedUrl);
 
@@ -118,12 +117,13 @@ class AppLinksterLauncher {
     final canLaunch = await canLaunchUrlString(parsedUrl);
     logger.d("Can launch: $canLaunch");
 
-    String urlToLaunch = canLaunch
-        ? parsedUrl
-        : url;
+    String urlToLaunch = canLaunch ? parsedUrl : url;
     logger.d("Determined URL: $urlToLaunch");
 
-    launchUrlString(urlToLaunch,mode: Platform.isAndroid ? LaunchMode.externalApplication: LaunchMode.platformDefault);
+    launchUrlString(urlToLaunch,
+        mode: Platform.isAndroid
+            ? LaunchMode.externalApplication
+            : LaunchMode.platformDefault);
   }
 
   AppType _identifyAppType(String url) {

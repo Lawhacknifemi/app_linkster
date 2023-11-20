@@ -12,3 +12,7 @@
 ## 0.0.3
 
 * fix facebook deep link bug
+
+## 0.0.4
+
+* update deps and format code

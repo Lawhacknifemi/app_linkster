@@ -1,6 +1,6 @@
 name: app_linkster
 description: AppLinkster simplifies the process of opening specific apps using tailored deep links.
-version: 0.0.3
+version: 0.0.4
 homepage: https://beingthere.dev
 repository: https://github.com/mohn93/app_linkster
 
@@ -11,8 +11,8 @@ dependencies:
   dio: ^5.3.3
   flutter:
     sdk: flutter
-  logger: ^1.0.0
-  url_launcher: ^6.1.14
+  logger: ^2.0.2+1
+  url_launcher: ^6.2.1
 
 dev_dependencies:
   flutter_test:
