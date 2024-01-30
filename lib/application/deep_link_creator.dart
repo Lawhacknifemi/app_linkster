@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:app_linkster/model/app_type.dart';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
@@ -7,9 +6,9 @@ class DeeplinkCreator {
   const DeeplinkCreator(this.logger);
 
   final Logger logger;
-  Future<String> getDeepLink({
+
+  Future<String?> getDeepLink({
     required String url,
-    required AppType type,
     required String idExtractionRegex,
     required String androidDeepLinkTemplate,
     required String iosDeepLinkTemplate,
@@ -21,10 +20,13 @@ class DeeplinkCreator {
     }
 
     final newEntityId = await _getSocialMediaId(url, idExtractionRegex);
+      logger.d('newEntityId: $newEntityId');
     if (newEntityId != null) {
-      return filledUrl(newEntityId);
+      final newUrl = filledUrl(newEntityId);
+      logger.d('newUrl: $newUrl');
+      return newUrl;
     }
-    return '';
+    return null;
   }
 
   Future<String?> _getSocialMediaId(String url, String regexString) async {
@@ -48,22 +50,23 @@ class DeeplinkCreator {
     return null;
   }
 
-  static Map<String, String> _getBrowserLikeHeaders() => {
+  static Map<String, String> _getBrowserLikeHeaders() =>
+      {
         'dpr': '2',
         'viewport-width': '1920',
         'sec-ch-ua':
-            '"Chromium";v="118", "Google Chrome";v="118", "Not=A?Brand";v="99"',
+        '"Chromium";v="118", "Google Chrome";v="118", "Not=A?Brand";v="99"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"macOS"',
         'sec-ch-ua-platform-version': '"13.6.0"',
         'sec-ch-ua-model': '""',
         'sec-ch-ua-full-version-list':
-            '"Chromium";v="118.0.5993.88", "Google Chrome";v="118.0.5993.88", "Not=A?Brand";v="99.0.0.0"',
+        '"Chromium";v="118.0.5993.88", "Google Chrome";v="118.0.5993.88", "Not=A?Brand";v="99.0.0.0"',
         'sec-ch-prefers-color-scheme': 'dark',
         'Upgrade-Insecure-Requests': '1',
         'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
         'Accept':
-            'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
       };
 }

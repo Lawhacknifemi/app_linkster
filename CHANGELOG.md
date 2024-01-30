@@ -2,7 +2,6 @@
 
 * Initial release.
 
-
 ## 0.0.2
 
 * add support for Android 30 and above.
@@ -16,3 +15,10 @@
 ## 0.0.4
 
 * update deps and format code
+*
+
+## 0.0.5
+
+* refactor architecture
+* add fallback LaunchMode to customize what how the link should be opened if the
+  app is not installed, (inAppBrowser, or external browser)

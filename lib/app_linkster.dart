@@ -3,13 +3,27 @@ library app_linkster;
 export 'model/model.dart';
 export 'application/application.dart';
 import 'dart:io';
-
 import 'package:app_linkster/application/deep_link_creator.dart';
 import 'package:app_linkster/application/kv_store.dart';
-import 'package:app_linkster/model/app_type.dart';
+import 'package:app_linkster/application/link_builder/link_builder_factory.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+/// The `AppLinksterLauncher` class is responsible for launching URLs.
+///
+/// It uses a singleton pattern to ensure that only one instance of the class is created.
+/// The class uses a `DeeplinkCreator`, `KeyValueStore`, and `Logger` to perform its operations.
+/// If these dependencies are not provided during instantiation, default instances are created.
+///
+/// The class provides a `launchThisGuy` method to launch a URL.
+/// This method first retrieves a link builder for the given URL and uses it to build a parsed URL.
+/// If a cached version of the URL exists in the key-value store, it is used instead of building a new one.
+/// The parsed URL is then stored in the key-value store for future use.
+///
+/// The method then determines the appropriate method to launch the URL based on the operating system and whether the parsed URL can be launched.
+/// If the parsed URL cannot be launched, the original URL is used instead.
+///
+/// The class also provides a private `_determineOSAndLaunchUrl` method to determine the appropriate method to launch the URL and launch it.
 class AppLinksterLauncher {
   AppLinksterLauncher({
     DeeplinkCreator? deeplinkCreator,
@@ -29,115 +43,52 @@ class AppLinksterLauncher {
   final Logger logger;
   final KeyValueStore keyValueStore;
 
-  Future<void> launchThisGuy(String url) async {
-    final type = _identifyAppType(url);
+  /// Launches a URL using the appropriate method based on the operating system and whether the URL can be launched.
+  ///
+  /// This function first retrieves a link builder for the given URL and uses it to build a parsed URL.
+  /// If a cached version of the URL exists in the key-value store, it is used instead of building a new one.
+  /// The parsed URL is then stored in the key-value store for future use.
+  ///
+  /// The function then determines the appropriate method to launch the URL based on the operating system and whether the parsed URL can be launched.
+  /// If the parsed URL cannot be launched, the original URL is used instead.
+  ///
+  /// @param url The URL to be launched.
+  /// @param fallbackLaunchMode The launch mode to be used if the parsed URL cannot be launched. Defaults to LaunchMode.externalApplication.
+  /// @return A Future that completes when the URL has been launched.
 
-    switch (type) {
-      case AppType.facebook:
-        await _launchFacebook(url);
-        break;
-      case AppType.twitter:
-        await _launchTwitter(url);
-        break;
-      case AppType.instagram:
-        await _launchInstagram(url);
-        break;
-      case AppType.tiktok:
-        await _launchTikTok(url);
-        break;
-      case AppType.youtube:
-        await _launchYoutube(url);
-        break;
-      case AppType.linkedin:
-        await _launchLinkedIn(url);
-        break;
-      default:
-        logger.e("Unknown link type for url: $url");
-        throw Exception("Unknown link type");
-    }
+  Future<void> launchThisGuy(
+    String url, {
+    LaunchMode fallbackLaunchMode = LaunchMode.externalApplication,
+  }) async {
+    final builder =
+        LinkBuilderFactory.getLinkBuilder(url, logger, deeplinkCreator);
+    final cachedUrl = await keyValueStore.get(url);
+    logger.d("Cached URL: $cachedUrl");
+    final parserUrl = cachedUrl ?? await builder.buildLink(url);
+    logger.d("Parsed URL: $parserUrl");
+    keyValueStore.put(url, parserUrl);
+    await _determineOSAndLaunchUrl(
+      url: url,
+      parsedUrl: parserUrl,
+      fallbackLaunchMode: fallbackLaunchMode,
+    );
   }
 
-  Future _launchFacebook(String url) async {
-    String parsedUrl = keyValueStore.get(AppType.facebook.name) ??
-        await deeplinkCreator.getDeepLink(
-          url: url.replaceFirst('www.', ''),
-          type: AppType.facebook,
-          idExtractionRegex:
-              r'<meta property="al:android:url" content="fb://profile/(\d+)"',
-          androidDeepLinkTemplate: 'fb://profile/{id}',
-          iosDeepLinkTemplate: 'fb://profile/{id}',
-        );
-    keyValueStore.put(AppType.facebook.name, parsedUrl);
-
-    logger.d("Parsed Facebook URL: $parsedUrl");
-    await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
-  }
-
-  Future _launchTikTok(String url) async {
-    String parsedUrl = keyValueStore.get(AppType.tiktok.name) ??
-        await deeplinkCreator.getDeepLink(
-            url: url,
-            type: AppType.tiktok,
-            idExtractionRegex: r',"authorId":"(\d+)"',
-            androidDeepLinkTemplate: 'snssdk1233://user/profile/{id}',
-            iosDeepLinkTemplate: 'snssdk1233://user/profile/{id}');
-
-    keyValueStore.put(AppType.tiktok.name, parsedUrl);
-    logger.d("Parsed TikTok URL: $parsedUrl");
-
-    await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
-  }
-
-  Future _launchTwitter(String url) async {
-    String parsedUrl =
-        "twitter://user/?screen_name=${Uri.parse(url).pathSegments.lastWhere((item) => item.isNotEmpty)}";
-    await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
-  }
-
-  Future _launchInstagram(String url) async {
-    String parsedUrl =
-        "instagram://user?username=${Uri.parse(url).pathSegments.lastWhere((item) => item.isNotEmpty)}";
-    await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
-  }
-
-  Future _launchLinkedIn(String url) async {
-    String parsedUrl = "linkedin:/${Uri.parse(url).path}";
-
-    await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
-  }
-
-  Future _launchYoutube(String url) async {
-    String parsedUrl =
-        "youtube:/${"${Uri.parse(url).path}?${Uri.parse(url).query}"}";
-    await _determineOSAndLaunchUrl(url: url, parsedUrl: parsedUrl);
-  }
-
-  Future _determineOSAndLaunchUrl(
-      {required String url, required String parsedUrl}) async {
-    final canLaunch = await canLaunchUrlString(parsedUrl);
+  Future _determineOSAndLaunchUrl({
+    required String url,
+    String? parsedUrl,
+    required LaunchMode fallbackLaunchMode,
+  }) async {
+    final canLaunch =
+        parsedUrl != null ? await canLaunchUrlString(parsedUrl) : false;
     logger.d("Can launch: $canLaunch");
-
     String urlToLaunch = canLaunch ? parsedUrl : url;
     logger.d("Determined URL: $urlToLaunch");
+    final appLaunchMode = Platform.isAndroid
+        ? LaunchMode.externalApplication
+        : LaunchMode.platformDefault;
+    final launchMode = canLaunch ? appLaunchMode : fallbackLaunchMode;
 
-    launchUrlString(urlToLaunch,
-        mode: Platform.isAndroid
-            ? LaunchMode.externalApplication
-            : LaunchMode.platformDefault);
-  }
-
-  AppType _identifyAppType(String url) {
-    const Map<String, AppType> domainToType = {
-      "facebook": AppType.facebook,
-      "twitter.com": AppType.twitter,
-      "instagram.com": AppType.instagram,
-      "tiktok.com": AppType.tiktok,
-      "youtube.com": AppType.youtube,
-      "linkedin.com": AppType.linkedin,
-    };
-
-    return domainToType.entries
-        .firstWhere((entry) => url.contains(entry.key))
-        .value;
+    launchUrlString(urlToLaunch, mode: launchMode);
   }
 }

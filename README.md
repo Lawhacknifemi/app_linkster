@@ -82,6 +82,12 @@ import 'package:app_linkster/app_linkster.dart';
 final launcher = AppLinksterLauncher();
 await launcher.launchThisGuy('https://www.facebook.com/yourProfile');
 ```
+change fallback launch mode:
+```dart
+final launcher = AppLinksterLauncher();
+await launcher.launchThisGuy('https://www.facebook.com/yourProfile', 
+    fallbackLaunchMode: LaunchMode.externalApplication);
+```
 
 ## Additional Information
 
