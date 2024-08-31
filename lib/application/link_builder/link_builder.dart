@@ -37,7 +37,7 @@ class TwitterLinkBuilder implements LinkBuilder {
   @override
   Future<String?> buildLink(String url) async {
     String parsedUrl =
-        "twitter://user/?screen_name=${Uri.parse(url).pathSegments.lastWhere((item) => item.isNotEmpty)}";
+        "x://user/?screen_name=${Uri.parse(url).pathSegments.lastWhere((item) => item.isNotEmpty)}";
     return parsedUrl;
   }
 
